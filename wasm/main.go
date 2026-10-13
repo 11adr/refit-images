@@ -9,7 +9,7 @@ import (
 	"image"
 	"syscall/js"
 
-	"github.com/11adr/caire-web/wasm/caire"
+	"github.com/11adr/refit-images/wasm/caire"
 )
 
 // caireResize(pixels, width, height, options, onProgress) -> Uint8ClampedArray | throws

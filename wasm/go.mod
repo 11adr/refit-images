@@ -1,4 +1,4 @@
-module github.com/11adr/caire-web/wasm
+module github.com/11adr/refit-images/wasm
 
 go 1.26.0
 

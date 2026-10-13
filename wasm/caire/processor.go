@@ -9,7 +9,7 @@ import (
 	"math"
 
 	"github.com/disintegration/imaging"
-	"github.com/11adr/caire-web/wasm/caire/utils"
+	"github.com/11adr/refit-images/wasm/caire/utils"
 	pigo "github.com/esimov/pigo/core"
 )
 

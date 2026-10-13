@@ -1,6 +1,6 @@
-# Caire Web
+# Refit Images
 
-Interfaccia web per [caire](https://github.com/esimov/caire) di Endre Simo: ridimensionamento *content-aware* (seam carving) delle immagini, **interamente nel browser del visitatore**. Nessun server, nessun upload: il motore Go è compilato in WebAssembly e gira in un Web Worker.
+Adatta le immagini senza deformarle. Interfaccia web basata su [caire](https://github.com/esimov/caire) di Endre Simo: ridimensionamento *content-aware* (seam carving) delle immagini, **interamente nel browser del visitatore**. Nessun server, nessun upload: il motore Go è compilato in WebAssembly e gira in un Web Worker.
 
 ## Funzioni
 
