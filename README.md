@@ -12,21 +12,21 @@ Adatta le immagini senza deformarle. Interfaccia web basata su [caire](https://g
 
 ## Deploy su Vercel
 
-Il sito è statico e `public/caire.wasm` è già compilato nel repo, quindi non serve alcuna build:
-importa il repo su Vercel (preset *Other*); `vercel.json` imposta `public` come output.
+Il sito è statico e `caire.wasm` è già compilato nel repo, quindi non serve alcuna build:
+importa il repo su Vercel (preset *Other*); `vercel.json` serve la radice del repo.
 
 ## Sviluppo
 
 ```sh
-./build.sh                          # ricompila public/caire.wasm (serve Go >= 1.22)
-python3 -m http.server -d public    # apri http://localhost:8000
+./build.sh                          # ricompila caire.wasm (serve Go >= 1.22)
+python3 -m http.server    # apri http://localhost:8000
 ```
 
 ## Struttura
 
 | Percorso | Contenuto |
 | --- | --- |
-| `public/` | sito statico (HTML, CSS, JS, `caire.wasm`) |
+| `index.html`, `app.js`, `worker.js`, `style.css`, `caire.wasm` | sito statico |
 | `wasm/main.go` | ponte JS ⇄ Go (`caireResize`) |
 | `wasm/caire/` | copia del nucleo di caire, adattata per WASM |
 
