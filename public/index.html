@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Caire Web</title>
+<meta name="description" content="Ridimensiona le immagini senza deformarle, con il seam carving di caire. Tutto avviene nel tuo browser: nessun upload.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%234f46e5'/%3E%3Cpath d='M11 5c4 5-4 7 0 11s-3 7 0 11M21 5c-4 5 4 7 0 11s3 7 0 11' stroke='%23fff' stroke-width='2.4' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><rect width="32" height="32" rx="7" fill="var(--accent)"/><path d="M11 5c4 5-4 7 0 11s-3 7 0 11M21 5c-4 5 4 7 0 11s3 7 0 11" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"/></svg>
+    <span>Caire Web</span>
+  </div>
+  <span class="pill" title="L'elaborazione avviene sul tuo dispositivo">
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M8 1.5 2.5 3.8v3.9c0 3.1 2.3 5.9 5.5 6.8 3.2-.9 5.5-3.7 5.5-6.8V3.8z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="m5.6 8.1 1.7 1.7 3.2-3.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    100% locale, nessun upload
+  </span>
+</header>
+
+<main>
+  <section id="intro" class="intro">
+    <h1>Cambia le proporzioni,<br>non il soggetto.</h1>
+    <p class="lead">Il seam carving elimina o aggiunge i percorsi di pixel meno importanti, così persone e oggetti non si deformano come con un normale ridimensionamento.</p>
+
+    <label id="drop" class="drop" tabindex="0">
+      <input id="file" type="file" accept="image/*" hidden>
+      <svg viewBox="0 0 48 48" width="44" height="44" aria-hidden="true"><path d="M24 32V10m0 0-8 8m8-8 8 8M8 30v6a4 4 0 0 0 4 4h24a4 4 0 0 0 4-4v-6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <strong>Trascina qui un'immagine</strong>
+      <span>oppure clicca per sceglierla, o incollala con Ctrl/⌘+V</span>
+    </label>
+    <button id="sample" class="link" type="button">Prova con un'immagine di esempio</button>
+  </section>
+
+  <section id="workspace" class="workspace" hidden>
+    <div class="stage-col">
+      <div class="stage-bar">
+        <div class="seg" role="tablist" aria-label="Vista">
+          <button id="tab-orig" role="tab" aria-selected="true" type="button">Originale</button>
+          <button id="tab-res" role="tab" aria-selected="false" type="button" disabled>Risultato</button>
+        </div>
+        <div id="brushbar" class="brushbar">
+          <div class="seg" role="group" aria-label="Pennello">
+            <button id="b-protect" class="tool protect" type="button" aria-pressed="false" title="Zone da conservare">
+              <i></i>Proteggi</button>
+            <button id="b-remove" class="tool remove" type="button" aria-pressed="false" title="Zone da eliminare per prime">
+              <i></i>Rimuovi</button>
+            <button id="b-erase" class="tool" type="button" aria-pressed="false" title="Cancella i tratti">Gomma</button>
+          </div>
+          <label class="size" title="Dimensione pennello">
+            <span class="sr">Dimensione pennello</span>
+            <input id="brush" type="range" min="4" max="160" value="30">
+          </label>
+          <button id="clear" class="ghost" type="button">Azzera</button>
+        </div>
+      </div>
+
+      <div class="stage" id="stage">
+        <div class="layers" id="layers">
+          <canvas id="base"></canvas>
+          <canvas id="mp" class="mask protect"></canvas>
+          <canvas id="mr" class="mask remove"></canvas>
+          <div id="cursor" class="cursor" hidden></div>
+        </div>
+        <div id="busy" class="busy" hidden>
+          <div class="busy-card" role="status" aria-live="polite">
+            <div class="bar"><div id="bar-fill"></div></div>
+            <div id="busy-text">Preparazione…</div>
+            <button id="cancel" class="ghost" type="button">Annulla</button>
+          </div>
+        </div>
+      </div>
+      <p id="hint" class="hint">Facoltativo: scegli un pennello e dipingi sull'immagine per proteggere un volto o indicare cosa eliminare.</p>
+      <p id="meta" class="meta"></p>
+    </div>
+
+    <aside class="panel" aria-label="Impostazioni">
+      <h2>Nuove dimensioni</h2>
+      <div class="field">
+        <div class="row"><label for="w-pct">Larghezza</label><span class="num"><input id="w-px" type="number" min="1" inputmode="numeric"> px</span></div>
+        <input id="w-pct" type="range" min="30" max="150" value="100">
+      </div>
+      <div class="field">
+        <div class="row"><label for="h-pct">Altezza</label><span class="num"><input id="h-px" type="number" min="1" inputmode="numeric"> px</span></div>
+        <input id="h-pct" type="range" min="30" max="150" value="100">
+      </div>
+      <button id="reset" class="link" type="button">Ripristina dimensioni</button>
+
+      <details class="adv">
+        <summary>Impostazioni avanzate</summary>
+        <label class="check"><input id="faces" type="checkbox"> <span>Riconosci i volti e proteggili</span></label>
+        <div class="field">
+          <div class="row"><label for="sobel">Soglia bordi</label><output id="sobel-o">10</output></div>
+          <input id="sobel" type="range" min="1" max="100" value="10">
+        </div>
+        <div class="field">
+          <div class="row"><label for="blur">Sfocatura energia</label><output id="blur-o">4</output></div>
+          <input id="blur" type="range" min="0" max="20" value="4">
+        </div>
+        <div class="field">
+          <label for="maxside">Lato massimo di lavoro</label>
+          <select id="maxside">
+            <option value="800">800 px · veloce</option>
+            <option value="1200" selected>1200 px · consigliato</option>
+            <option value="1600">1600 px</option>
+            <option value="0">Originale · può essere lento</option>
+          </select>
+        </div>
+      </details>
+
+      <button id="run" class="primary" type="button">Ridimensiona</button>
+      <p id="error" class="error" role="alert" hidden></p>
+
+      <div id="export" class="export" hidden>
+        <div class="field">
+          <label for="fmt">Formato</label>
+          <select id="fmt"><option value="png">PNG</option><option value="jpeg">JPG</option><option value="webp">WebP</option></select>
+        </div>
+        <button id="download" class="secondary" type="button">Scarica risultato</button>
+      </div>
+
+      <button id="new" class="link" type="button">Scegli un'altra immagine</button>
+    </aside>
+  </section>
+</main>
+
+<footer>
+  Basato su <a href="https://github.com/esimov/caire" target="_blank" rel="noopener">caire</a> di Endre Simo (licenza MIT), compilato in WebAssembly.
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
